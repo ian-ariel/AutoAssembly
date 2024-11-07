@@ -20,7 +20,7 @@ read -p "Qual o tamanho esperado do genoma (<number>[g|m|k])? " size
 read -p "Qual o máximo de memória para usar para essa tarefa? " memory
 read -p "Qual o número de threads para dedicar a essa tarefa? " threads
 read -p "Qual o seu tipo de leituras (-pacbio-raw | -pacbio-corrected | -nanopore-raw | -nanopore-corrected)? " long
-read -p "Qual o caminho das reads a serem montadas? (*.fastq ou *.fastq.gz no final do caminho) " input
+read -p "Qual o caminho das reads a serem montadas (sem / no final)?" input
 
 #aviso de falta de input
 if ls "$input"/*.fastq* &> /dev/null; then
@@ -32,4 +32,4 @@ fi
 
 #execução canu
 echo "Execução do Canu iniciada com sucesso!"
-canu -p "$prefix" -d "$saida" genomeSize="$size" maxMemory="$memory" maxThreads="$threads" "$long" "$input" gnuplotTested=true
+canu -p "$prefix" -d "$saida" genomeSize="$size" maxMemory="$memory" maxThreads="$threads" "$long" "$input"/*.fastq*
