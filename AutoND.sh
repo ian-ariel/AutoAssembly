@@ -1,0 +1,30 @@
+#!/bin/bash
+
+ls reads1.fasta reads2.fastq reads3.fasta.gz reads4.fastq.gz ... > input.fofn
+
+[General]
+job_type = local
+job_prefix = nextDenovo
+task = all # 'all', 'correct', 'assemble'
+rewrite = yes # yes/no
+deltmp = yes
+rerun = 3
+parallel_jobs = 2
+input_type = raw
+read_type = clr
+input_fofn = ./input.fofn
+workdir = ./01_rundir
+
+[correct_option]
+read_cutoff = 1k
+genome_size = 308161
+pa_correction = 2
+sort_options = -m 1g -t 2
+minimap2_options_raw =  -t 8
+correction_options = -p 15
+
+[assemble_option]
+minimap2_options_cns =  -t 8
+nextgraph_options = -a 1
+
+nextDenovo run.cfg
