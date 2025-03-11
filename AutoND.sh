@@ -1,7 +1,9 @@
 #!/bin/bash
-
+#Verificar se o programa está instalado
+#Preparar o input
 ls reads1.fasta reads2.fastq reads3.fasta.gz reads4.fastq.gz ... > input.fofn
 
+#Configurar a run.cfg
 [General]
 job_type = local
 job_prefix = nextDenovo
@@ -27,4 +29,6 @@ correction_options = -p 15
 minimap2_options_cns =  -t 8
 nextgraph_options = -a 1
 
+
+#executar
 nextDenovo run.cfg
