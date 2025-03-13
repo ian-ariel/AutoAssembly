@@ -57,7 +57,7 @@ parallel_jobs = 10
 input_type = $inputype
 read_type = $readtype
 input_fofn = $PWD/input.fofn  # Caminho absoluto
-workdir = 01_rundir
+workdir = $input/montagemND
 
 [correct_option]
 read_cutoff = 1k
