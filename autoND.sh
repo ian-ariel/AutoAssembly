@@ -1,10 +1,28 @@
 #!/bin/bash
+echo "ATENÇÃO: Esse script deve ser executado no diretório onde o NextDenovo será instalado!"
 
-# Verificar e instalar NextDenovo se necessário
-if ! command -v nextDenovo &> /dev/null; then
-  echo "Erro: NextDenovo não encontrado. Instalando..."
+# Verificar e configurar o NextDenovo
+if [ ! -f "$PWD/NextDenovo/nextDenovo" ]; then
+  echo "Erro: O script 'nextDenovo' não foi encontrado."
+  echo "Este script deve ser executado no diretório onde o NextDenovo será instalado."
+  
+  # Baixar e instalar o NextDenovo
+  echo "Instalando NextDenovo..."
   wget https://github.com/Nextomics/NextDenovo/releases/latest/download/NextDenovo.tgz
   tar -vxzf NextDenovo.tgz
+  
+  # Verificar se o script foi extraído corretamente
+  if [ -f "$PWD/NextDenovo/nextDenovo" ]; then
+    echo "NextDenovo instalado com sucesso."
+    chmod +x "$PWD/NextDenovo/nextDenovo" # Dá permissão de execução
+    export PATH="$PWD/NextDenovo:$PATH" # Adiciona ao PATH temporariamente
+  else
+    echo "Erro: Falha ao instalar o NextDenovo. Verifique o download."
+    exit 1
+  fi
+else
+  # Se o script já existe, garante permissão de execução
+  chmod +x "$PWD/NextDenovo/nextDenovo"
   export PATH="$PWD/NextDenovo:$PATH" # Adiciona ao PATH temporariamente
 fi
 
@@ -55,4 +73,4 @@ nextgraph_options = -a 1
 EOF
 
 # Executar
-./nextDenovo run.cfg
+./NextDenovo/nextDenovo run.cfg
