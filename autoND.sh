@@ -1,6 +1,12 @@
 #!/bin/bash
 echo "ATENÇÃO: Esse script deve ser executado no diretório onde o NextDenovo será instalado!"
 
+# Verificar dependências
+if ! command -v wget &> /dev/null || ! command -v tar &> /dev/null; then
+  echo "Erro: 'wget' ou 'tar' não estão instalados. Instale-os antes de continuar."
+  exit 1
+fi
+
 # Verificar e configurar o NextDenovo
 if [ ! -f "$PWD/NextDenovo/nextDenovo" ]; then
   echo "Erro: O script 'nextDenovo' não foi encontrado."
@@ -36,15 +42,44 @@ if [ -z "$(find "$input" -maxdepth 1 -name '*.fastq*' -print -quit)" ]; then
 fi
 
 # Criar input.fofn no diretório atual
+echo "Criando arquivo input.fofn..."
 find "$input" -name '*.fastq*' > input.fofn
+echo "Arquivo input.fofn criado com sucesso."
 
 # Configurar run.cfg
 read -p "Tipo de tarefa (all/correct/assemble): " task
+if [[ "$task" != "all" && "$task" != "correct" && "$task" != "assemble" ]]; then
+  echo "Erro: Tipo de tarefa inválido. Use 'all', 'correct' ou 'assemble'."
+  exit 1
+fi
+
 read -p "Sobrescrever diretório? (yes/no): " rewrite
+if [[ "$rewrite" != "yes" && "$rewrite" != "no" ]]; then
+  echo "Erro: Valor inválido para 'rewrite'. Use 'yes' ou 'no'."
+  exit 1
+fi
+
 read -p "Tipo de input (raw/corrected): " inputype
+if [[ "$inputype" != "raw" && "$inputype" != "corrected" ]]; then
+  echo "Erro: Tipo de input inválido. Use 'raw' ou 'corrected'."
+  exit 1
+fi
+
 read -p "Tipo de reads (clr/hifi/ont): " readtype
+if [[ "$readtype" != "clr" && "$readtype" != "hifi" && "$readtype" != "ont" ]]; then
+  echo "Erro: Tipo de reads inválido. Use 'clr', 'hifi' ou 'ont'."
+  exit 1
+fi
+
 read -p "Tamanho do genoma (ex: 5m): " size
 
+# Verificar se o diretório de trabalho já existe
+if [[ "$rewrite" == "no" && -d "$input/montagemND" ]]; then
+  echo "Erro: O diretório $input/montagemND já existe. Defina 'rewrite = yes' para sobrescrevê-lo."
+  exit 1
+fi
+
+# Gerar run.cfg
 cat <<EOF > run.cfg
 [General]
 job_type = local
@@ -53,7 +88,7 @@ task = $task
 rewrite = $rewrite
 deltmp = yes
 rerun = 3
-parallel_jobs = 10
+parallel_jobs = 4
 input_type = $inputype
 read_type = $readtype
 input_fofn = $PWD/input.fofn  # Caminho absoluto
@@ -72,5 +107,10 @@ minimap2_options_cns = -t 8
 nextgraph_options = -a 1
 EOF
 
-# Executar
+echo "Arquivo run.cfg gerado com sucesso."
+
+# Executar NextDenovo
+echo "Executando NextDenovo..."
 ./NextDenovo/nextDenovo run.cfg
+
+echo "NextDenovo configurado e executado com sucesso!"
