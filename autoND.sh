@@ -55,4 +55,4 @@ nextgraph_options = -a 1
 EOF
 
 # Executar
-nextDenovo run.cfg
+./nextDenovo run.cfg
