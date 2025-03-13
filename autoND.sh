@@ -73,6 +73,20 @@ fi
 
 read -p "Tamanho do genoma (ex: 5m): " size
 
+# Escolha do número de tarefas paralelas
+read -p "Número de tarefas paralelas (recomendado: 4): " parallel_jobs
+if ! [[ "$parallel_jobs" =~ ^[0-9]+$ ]]; then
+  echo "Erro: O número de tarefas paralelas deve ser um valor numérico."
+  exit 1
+fi
+
+# Escolha do número de threads para minimap2
+read -p "Número de threads para minimap2: " threads
+if ! [[ "$threads" =~ ^[0-9]+$ ]]; then
+  echo "Erro: O número de threads deve ser um valor numérico."
+  exit 1
+fi
+
 # Verificar se o diretório de trabalho já existe
 if [[ "$rewrite" == "no" && -d "$input/montagemND" ]]; then
   echo "Erro: O diretório $input/montagemND já existe. Defina 'rewrite = yes' para sobrescrevê-lo."
@@ -88,7 +102,7 @@ task = $task
 rewrite = $rewrite
 deltmp = yes
 rerun = 3
-parallel_jobs = 4
+parallel_jobs = $parallel_jobs
 input_type = $inputype
 read_type = $readtype
 input_fofn = $PWD/input.fofn  # Caminho absoluto
@@ -99,11 +113,11 @@ read_cutoff = 1k
 genome_size = $size
 pa_correction = 2
 sort_options = -m 1g -t 2
-minimap2_options_raw = -t 8
+minimap2_options_raw = -t $threads
 correction_options = -p 15
 
 [assemble_option]
-minimap2_options_cns = -t 8
+minimap2_options_cns = -t $threads
 nextgraph_options = -a 1
 EOF
 
