@@ -15,7 +15,6 @@ fi
 #Perguntas de input de parâmetros
 
 read -p "Qual o prefixo para os arquivos de saída? " prefix
-read -p "Qual o caminho e o seu diretório de saída? " saida
 read -p "Qual o tamanho esperado do genoma (<number>[g|m|k])? " size
 read -p "Qual o máximo de memória para usar para essa tarefa? " memory
 read -p "Qual o número de threads para dedicar a essa tarefa? " threads
@@ -32,4 +31,4 @@ fi
 
 #execução canu
 echo "Execução do Canu iniciada com sucesso!"
-canu -p "$prefix" -d "$saida" genomeSize="$size" maxMemory="$memory" maxThreads="$threads" "$long" "$input"/*.fastq*
+canu -p "$prefix" -d "$input/montagem_canu" genomeSize="$size" maxMemory="$memory" maxThreads="$threads" "$long" "$input"/*.fastq*
