@@ -1,10 +1,47 @@
 #!/bin/bash
 echo "ATENÇÃO: Esse script deve ser executado no diretório onde o NextDenovo será instalado!"
 
-# Verificar dependências
-if ! command -v wget &> /dev/null || ! command -v tar &> /dev/null; then
-  echo "Erro: 'wget' ou 'tar' não estão instalados. Instale-os antes de continuar."
-  exit 1
+# Função para instalar dependências
+install_dependencies() {
+  echo "Instalando dependências..."
+  if command -v apt-get &> /dev/null; then
+    # Para sistemas baseados em Debian/Ubuntu
+    sudo apt-get update
+    sudo apt-get install -y wget tar python3
+  elif command -v yum &> /dev/null; then
+    # Para sistemas baseados em RHEL/CentOS
+    sudo yum install -y wget tar python3
+  elif command -v dnf &> /dev/null; then
+    # Para sistemas baseados em Fedora
+    sudo dnf install -y wget tar python3
+  elif command -v zypper &> /dev/null; then
+    # Para sistemas baseados em openSUSE
+    sudo zypper install -y wget tar python3
+  elif command -v pacman &> /dev/null; then
+    # Para sistemas baseados em Arch Linux
+    sudo pacman -Syu --noconfirm wget tar python
+  else
+    echo "Erro: Gerenciador de pacotes não suportado. Instale manualmente: wget, tar, python3 e pip."
+    exit 1
+  fi
+
+  # Instalar pip se não estiver instalado
+  if ! command -v pip &> /dev/null && ! command -v pip3 &> /dev/null; then
+    echo "Instalando pip..."
+    wget https://bootstrap.pypa.io/get-pip.py
+    python3 get-pip.py
+    rm get-pip.py
+  fi
+
+  # Instalar paralleltask usando pip
+  echo "Instalando paralleltask..."
+  pip install paralleltask
+}
+
+# Verificar e instalar dependências
+if ! command -v wget &> /dev/null || ! command -v tar &> /dev/null || ! command -v python3 &> /dev/null || ! pip show paralleltask &> /dev/null; then
+  echo "Dependências faltando: wget, tar, python3 ou paralleltask."
+  install_dependencies
 fi
 
 # Verificar e configurar o NextDenovo
@@ -81,7 +118,7 @@ if ! [[ "$parallel_jobs" =~ ^[0-9]+$ ]]; then
 fi
 
 # Escolha do número de threads para minimap2
-read -p "Número de threads para minimap2: " threads
+read -p "Número de threads para minimap2 (recomendado: 8): " threads
 if ! [[ "$threads" =~ ^[0-9]+$ ]]; then
   echo "Erro: O número de threads deve ser um valor numérico."
   exit 1
