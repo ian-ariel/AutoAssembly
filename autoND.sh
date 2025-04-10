@@ -69,6 +69,11 @@ else
   export PATH="$PWD/NextDenovo:$PATH" # Adiciona ao PATH temporariamente
 fi
 
+#!/bin/bash
+echo "ATENÇÃO: Esse script deve ser executado no diretório onde o NextDenovo será instalado!"
+
+# [Seção de instalação de dependências permanece igual...]
+
 # Preparar input
 read -p "Qual o caminho das reads a serem montadas (sem / no final)? " input
 
@@ -124,14 +129,24 @@ if ! [[ "$threads" =~ ^[0-9]+$ ]]; then
   exit 1
 fi
 
-# Verificar se o diretório de trabalho já existe
-if [[ "$rewrite" == "no" && -d "$input/montagemND" ]]; then
-  echo "Erro: O diretório $input/montagemND já existe. Defina 'rewrite = yes' para sobrescrevê-lo."
-  exit 1
+# Verificar e criar/limpar diretório de trabalho
+if [[ -d "$input/montagemND" ]]; then
+    if [[ "$rewrite" == "yes" ]]; then
+        echo "Aviso: O diretório $input/montagemND já existe e será sobrescrito."
+        rm -rf "$input/montagemND"
+        mkdir -p "$input/montagemND"
+    else
+        echo "Erro: O diretório $input/montagemND já existe. Defina 'rewrite = yes' para sobrescrevê-lo."
+        exit 1
+    fi
+else
+    echo "Criando diretório $input/montagemND..."
+    mkdir -p "$input/montagemND"
 fi
 
-# Gerar run.cfg
-cat <<EOF > run.cfg
+# Gerar run.cfg corretamente formatado
+echo "Gerando arquivo run.cfg..."
+cat > run.cfg <<EOF
 [General]
 job_type = local
 job_prefix = nextDenovo
@@ -142,7 +157,7 @@ rerun = 3
 parallel_jobs = $parallel_jobs
 input_type = $inputype
 read_type = $readtype
-input_fofn = $PWD/input.fofn  # Caminho absoluto
+input_fofn = $PWD/input.fofn
 workdir = $input/montagemND
 
 [correct_option]
